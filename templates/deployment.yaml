@@ -1,0 +1,50 @@
+{{- $fullName := .Values.deployment.name }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $fullName }}
+  labels:
+    app: {{ $fullName }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $fullName }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app: {{ $fullName }}
+    spec:
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ $fullName }}       
+          image: "{{ .Values.image.repository }}/{{ .Values.image.name }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+          envFrom:
+            - configMapRef:
+                name: {{ $fullName }} 
+            - secretRef:
+                name: {{ $fullName }} 
+          resources:
+          {{- with .Values.deployment.request -}} #checks if there is request 
+            requests:
+              cpu: {{ .Values.deployment.request.cpu | default "100m"  | quote  }}
+              memory: {{ .Values.deployment.request.memory | default "50Mi"  | quote }}
+          {{- end -}}
+            {{- if .Values.deployment.limit -}} #checks if there limit 
+            limits:
+              cpu: {{ .Values.deployment.limit.cpu | default "200m" | quote  }}
+              memory: {{ .Values.deployment.limit.memory | default "100Mi" |  quote }}
+            {{ else }}
+            limits:
+              cpu: 100m
+              memory: 100Mi
+            {{- end -}}

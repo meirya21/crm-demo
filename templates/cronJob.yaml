@@ -1,0 +1,19 @@
+apiVersion: batch/v1beta1 
+kind: CronJob
+metadata:
+  name: cron-job
+spec: # CronJob
+  schedule:  {{ .Values.cronjob.cronblock }}
+  jobTemplate:
+    spec: # job
+      template:
+        spec: #Pod
+          containers:
+          - name: mongo
+            image: mongo:5.0.8-focal
+            imagePullPolicy: IfNotPresent
+            command: 
+              -  /bin/bash
+              -  -c
+              - mongo --eval {{ .Values.cronjob.command }} {{ .Values.cronjob.mongo }}
+          restartPolicy: {{ .Values.cronjob.restartPolicy }}

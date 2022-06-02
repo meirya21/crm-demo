@@ -1,0 +1,87 @@
+# Default values for demo-crm.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+#-----------------------------------------
+replicaCount: 1
+
+image:
+  repository: gcr.io/develeap-kube
+  pullPolicy: IfNotPresent
+  name: app-image
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
+
+container:
+  Port: 3000
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 3000
+  targetPort: 3000
+#--------------------------------------------------
+ingress:
+  enabled: true
+  className: nginx
+
+  annotations: {
+    kubernetes.io/tls-acme: "true",
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  }
+  
+  host: zarmon-crm.ddns.net
+  secretName: "secret-amit-zarmon"
+  tls: true
+
+secrets:
+  MONGODB_URI: mongodb://amit:amit1234@mongo-mongodb-0.mongo-mongodb-headless,mongo-mongodb-1.mongo-mongodb-headless,mongo-mongodb-2.mongo-mongodb-headless:27017/amit-db
+
+configmap:
+  name: "demo-crm"
+  log_level: "debug"
+  persistence: true 
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+cronjob:
+  enabled: true 
+  cronblock: "7 * * * *"
+  mongo: "mongodb://amit:amit1234@mongo-mongodb-0.mongo-mongodb-headless:27017/amit-db"
+  command: 'db.clients.remove({});'
+  restartPolicy: OnFailure
+
+#--------------------------------------------------
+
+deployment:
+  name: demo-crm
