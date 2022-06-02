@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: gcr.io/develeap-kube
+  repository: gcr.io/astral-archive-351007/crmv2
   pullPolicy: IfNotPresent
   name: app-image
   # Overrides the image tag whose default is the chart appVersion.
@@ -54,12 +54,12 @@ ingress:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
   }
   
-  host: zarmon-crm.ddns.net
-  secretName: "secret-amit-zarmon"
+  host: meirapp.ddns.net
+  secretName: "secret-meir"
   tls: true
 
 secrets:
-  MONGODB_URI: mongodb://amit:amit1234@mongo-mongodb-0.mongo-mongodb-headless,mongo-mongodb-1.mongo-mongodb-headless,mongo-mongodb-2.mongo-mongodb-headless:27017/amit-db
+  MONGODB_URI: mongodb://admin:admin1234@mongo-mongodb-0.mongo-mongodb-headless,mongo-mongodb-1.mongo-mongodb-headless,mongo-mongodb-2.mongo-mongodb-headless:27017/amit-db
 
 configmap:
   name: "demo-crm"
@@ -77,7 +77,7 @@ affinity: {}
 cronjob:
   enabled: true 
   cronblock: "7 * * * *"
-  mongo: "mongodb://amit:amit1234@mongo-mongodb-0.mongo-mongodb-headless:27017/amit-db"
+  mongo: "mongodb://admin:admin1234@mongo-mongodb-0.mongo-mongodb-headless:27017/crm-db"
   command: 'db.clients.remove({});'
   restartPolicy: OnFailure
 
